@@ -1,0 +1,100 @@
+package com.example.playhub;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder> {
+
+    private List<Game> fullGameList; // Full list of games
+    private List<Game> displayedList; // List of games to be displayed
+    private Context context;
+
+    public GameAdapter(Context context, List<Game> gameList) {
+        this.context = context;
+        this.fullGameList = new ArrayList<>(gameList);
+        this.displayedList = gameList;
+    }
+
+    public void setGames(List<Game> games) {
+        this.fullGameList = new ArrayList<>(games);
+        this.displayedList = new ArrayList<>(games);
+        notifyDataSetChanged();
+    }
+
+    public void filter(String query, String genre, String platform) {
+        List<Game> filteredList = new ArrayList<>();
+
+        for (Game game : fullGameList) {
+            // check name
+            boolean matchesName = game.getTitle().toLowerCase().contains(query.toLowerCase());
+
+            // check genre
+            boolean matchesGenre = genre.equals("All Genres") || game.getGenre().equalsIgnoreCase(genre);
+
+            // check platform
+            boolean matchesPlatform = platform.equals("All Platforms") || game.getPlatform().equalsIgnoreCase(platform);
+
+            // if all conditions are met, add the game to the filtered list
+            if (matchesName && matchesGenre && matchesPlatform) {
+                filteredList.add(game);
+            }
+        }
+
+        this.displayedList = filteredList;
+        notifyDataSetChanged(); // refresh the list
+    }
+
+    @NonNull
+    @Override
+    public GameViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_game, parent, false);
+        return new GameViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull GameViewHolder holder, int position) {
+        Game game = displayedList.get(position);
+
+        // Bind text data
+        holder.tvTitle.setText(game.getTitle());
+        holder.tvGenre.setText(game.getGenre() + " | " + game.getPlatform());
+        holder.tvDescription.setText(game.getShortDescription());
+
+        // Load image using Glide
+        Glide.with(context)
+                .load(game.getThumbnail())
+                .placeholder(android.R.drawable.ic_menu_gallery) // Image while loading
+                .into(holder.imgThumbnail);
+    }
+
+    @Override
+    public int getItemCount() {
+        return displayedList.size();
+    }
+
+    // Inner class for ViewHolder
+    public static class GameViewHolder extends RecyclerView.ViewHolder {
+        ImageView imgThumbnail;
+        TextView tvTitle, tvGenre, tvDescription;
+
+        public GameViewHolder(@NonNull View itemView) {
+            super(itemView);
+            imgThumbnail = itemView.findViewById(R.id.imgGameThumbnail);
+            tvTitle = itemView.findViewById(R.id.tvGameTitle);
+            tvGenre = itemView.findViewById(R.id.tvGameGenre);
+            tvDescription = itemView.findViewById(R.id.tvGameDescription);
+        }
+    }
+}

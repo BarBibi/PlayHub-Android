@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">PlayHub</string>
+
+    <string-array name="game_genres">
+        <item>All Genres</item>
+        <item>Shooter</item>
+        <item>MMORPG</item>
+        <item>Strategy</item>
+        <item>Action RPG</item>
+        <item>Battle Royale</item>
+        <item>Sports</item>
+        <item>Racing</item>
+        <item>MOBA</item>
+    </string-array>
+
+    <string-array name="game_platforms">
+        <item>All Platforms</item>
+        <item>PC (Windows)</item>
+        <item>Web Browser</item>
+    </string-array>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
