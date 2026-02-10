@@ -19,6 +19,8 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +45,9 @@ public class HomeFragment extends Fragment {
     private String currentQuery = "";
     private String currentGenre = "All Genres";
     private String currentPlatform = "All Platforms";
+
+    private PlayHubApiService myApiService;
+    private FirebaseAuth mAuth;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -102,6 +107,14 @@ public class HomeFragment extends Fragment {
         spinnerPlatform = view.findViewById(R.id.spinnerPlatform);
         progressBar = view.findViewById(R.id.progressBar);
 
+        mAuth = FirebaseAuth.getInstance();
+
+        Retrofit myRetrofit = new Retrofit.Builder()
+                .baseUrl("http://10.0.0.11:5000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        myApiService = myRetrofit.create(PlayHubApiService.class);
+
         setupRecyclerView();
 
         setupSpinners();
@@ -110,17 +123,32 @@ public class HomeFragment extends Fragment {
 
         fetchGames();
 
+        syncFavorites();
+
         ImageButton btnSettings = view.findViewById(R.id.btnSettings);
         btnSettings.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_homeFragment_to_settingsFragment);
+        });
+
+        ImageButton btnFavorites = view.findViewById(R.id.btnFavorites);
+        btnFavorites.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.action_homeFragment_to_favoritesFragment);
         });
     }
 
     private void setupRecyclerView() {
         rvGames.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new GameAdapter(getContext(), new ArrayList<>());
-        rvGames.setAdapter(adapter);
 
+        adapter = new GameAdapter(getContext(), new ArrayList<>(), new GameAdapter.OnFavoriteClickListener() {
+            @Override
+            public void onFavoriteClick(int gameId, boolean isFavorite) {
+
+                // This code runs when the user clicks the heart icon
+                handleFavoriteAction(gameId, isFavorite);
+            }
+        });
+
+        rvGames.setAdapter(adapter);
     }
 
     private void setupSpinners() {
@@ -215,6 +243,90 @@ public class HomeFragment extends Fragment {
                 }
 
                 Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void handleFavoriteAction(int gameId, boolean isFavorite) {
+        if (mAuth.getCurrentUser() == null) return;
+        String uid = mAuth.getCurrentUser().getUid();
+
+        FavoriteRequest request = new FavoriteRequest(gameId);
+
+        if (isFavorite) {
+            // User checked the box -> Add to favorites
+            myApiService.addFavorite(uid, request).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (!response.isSuccessful()) {
+                        Toast.makeText(getContext(), "Failed to add favorite", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            // User unchecked the box -> Remove from favorites
+            myApiService.removeFavorite(uid, request).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (!response.isSuccessful()) {
+                        Toast.makeText(getContext(), "Failed to remove favorite", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void syncFavorites() {
+        if (mAuth.getCurrentUser() == null) return;
+        String uid = mAuth.getCurrentUser().getUid();
+
+        // Fetch user data from MongoDB
+        myApiService.getUser(uid).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                // Check if fragment is still alive to avoid crashes
+                if (!isAdded()) return;
+
+                if (response.isSuccessful() && response.body() != null) {
+                    User user = response.body();
+
+                    // Helper list to store valid Game IDs
+                    List<Integer> favoriteIds = new ArrayList<>();
+
+                    // Get the raw list from the user object
+                    List<Object> rawFavorites = user.getFavorites();
+
+                    if (rawFavorites != null) {
+                        for (Object item : rawFavorites) {
+                            // Safe casting: Gson might treat numbers as Double (e.g., 540.0)
+                            if (item instanceof Double) {
+                                favoriteIds.add(((Double) item).intValue());
+                            } else if (item instanceof Integer) {
+                                favoriteIds.add((Integer) item);
+                            }
+                        }
+                    }
+
+                    // Update the adapter with the clean list of IDs
+                    if (adapter != null) {
+                        adapter.setFavorites(favoriteIds);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                // Silent fail - we don't want to annoy user if favorites don't load instantly
             }
         });
     }

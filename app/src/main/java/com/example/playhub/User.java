@@ -1,7 +1,10 @@
 package com.example.playhub;
 
+import java.util.List;
+
 public class User {
     private String uid, email, password, birthDate, nickname, phone, gender;
+    private List<Object> favorites;
 
     public User() {}
 
@@ -41,5 +44,9 @@ public class User {
 
     public String getGender() {
         return gender;
+    }
+
+    public List<Object> getFavorites() {
+        return favorites;
     }
 }

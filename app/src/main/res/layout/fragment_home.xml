@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -18,17 +19,29 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:queryHint="Search game..."
-            android:iconifiedByDefault="false"/>
+            android:iconifiedByDefault="false" />
 
         <ImageButton
-            android:id="@+id/btnSettings"
+            android:id="@+id/btnFavorites"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_settings"
+            android:src="@drawable/ic_heart"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Settings"
+            android:contentDescription="Favorites"
             android:layout_marginStart="8dp"
-            android:scaleType="centerInside"/>
+            android:scaleType="centerInside"
+            app:tint="#D32F2F" />
+
+        <ImageButton
+        android:id="@+id/btnSettings"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_settings"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Settings"
+        android:layout_marginStart="4dp"
+        android:scaleType="centerInside"/>
+
     </LinearLayout>
 
     <LinearLayout

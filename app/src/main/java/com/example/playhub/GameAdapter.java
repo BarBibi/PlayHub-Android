@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,10 +22,18 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
     private List<Game> displayedList; // List of games to be displayed
     private Context context;
 
-    public GameAdapter(Context context, List<Game> gameList) {
+    public interface OnFavoriteClickListener {
+        void onFavoriteClick(int gameId, boolean isFavorite);
+    }
+
+    private OnFavoriteClickListener favoriteListener;
+    private List<Integer> userFavoritesIds = new ArrayList<>();
+
+    public GameAdapter(Context context, List<Game> gameList, OnFavoriteClickListener listener) {
         this.context = context;
         this.fullGameList = new ArrayList<>(gameList);
         this.displayedList = gameList;
+        this.favoriteListener = listener;
     }
 
     public void setGames(List<Game> games) {
@@ -77,6 +86,19 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
                 .load(game.getThumbnail())
                 .placeholder(android.R.drawable.ic_menu_gallery) // Image while loading
                 .into(holder.imgThumbnail);
+
+        // Set the state of the checkbox based on the list
+        holder.cbFavorite.setOnCheckedChangeListener(null);
+
+        // Check if the game id is in the list of the user favorite
+        boolean isFav = userFavoritesIds.contains(game.getId());
+        holder.cbFavorite.setChecked(isFav);
+
+        holder.cbFavorite.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (favoriteListener != null) {
+                favoriteListener.onFavoriteClick(game.getId(), isChecked);
+            }
+        });
     }
 
     @Override
@@ -88,6 +110,7 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
     public static class GameViewHolder extends RecyclerView.ViewHolder {
         ImageView imgThumbnail;
         TextView tvTitle, tvGenre, tvDescription;
+        CheckBox cbFavorite;
 
         public GameViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -95,6 +118,13 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
             tvTitle = itemView.findViewById(R.id.tvGameTitle);
             tvGenre = itemView.findViewById(R.id.tvGameGenre);
             tvDescription = itemView.findViewById(R.id.tvGameDescription);
+            cbFavorite = itemView.findViewById(R.id.cbFavorite);
         }
+    }
+
+    // Set favorite status of a game
+    public void setFavorites(List<Integer> favorites) {
+        this.userFavoritesIds = favorites;
+        notifyDataSetChanged();
     }
 }
