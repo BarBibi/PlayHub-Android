@@ -3,7 +3,7 @@ package com.example.playhub;
 import java.util.List;
 
 public class User {
-    private String uid, email, password, birthDate, nickname, phone, gender;
+    private String uid, email, password, birthDate, nickname, phone, gender, profileImage;
     private List<Object> favorites;
 
     public User() {}
@@ -48,5 +48,13 @@ public class User {
 
     public List<Object> getFavorites() {
         return favorites;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }

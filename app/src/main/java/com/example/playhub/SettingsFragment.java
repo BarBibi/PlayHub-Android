@@ -1,5 +1,6 @@
 package com.example.playhub;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,7 +14,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,6 +29,21 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException;
+
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+import android.provider.MediaStore;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import android.content.Intent;
+import android.net.Uri;
+import android.app.Activity;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import android.media.ExifInterface;
+import android.graphics.Matrix;
+import java.io.InputStream;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,6 +59,15 @@ public class SettingsFragment extends Fragment {
     private FirebaseAuth mAuth;
     private PlayHubApiService apiService;
     private String currentUid;
+
+    private ImageView ivProfile;
+    private TextView tvChangePhoto;
+
+    // Variable to store the encoded image to send to server
+    private String encodedImage = "";
+
+    // Image Picker Launcher
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -74,12 +101,35 @@ public class SettingsFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
+        // Initialize the Image Picker Logic
+        imagePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri imageUri = result.getData().getData();
+                        try {
+                            // Get the Bitmap from the URI
+                            Bitmap originalBitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
+
+                            // Rotate image if necessary
+                            Bitmap rotatedBitmap = rotateImageIfRequired(getContext(), originalBitmap, imageUri);
+
+                            // Update ImageView
+                            ivProfile.setImageBitmap(rotatedBitmap);
+
+                            // Encode image and store it in memory
+                            encodedImage = encodeImage(rotatedBitmap);
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            Toast.makeText(getContext(), "Failed to load image", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+        );
     }
 
     @Override
@@ -110,6 +160,9 @@ public class SettingsFragment extends Fragment {
 
         initViews(view);
 
+        tvChangePhoto.setOnClickListener(v -> openGallery());
+        ivProfile.setOnClickListener(v -> openGallery());
+
         loadUserData();
 
         ImageButton btnBack = view.findViewById(R.id.btnBack);
@@ -121,7 +174,10 @@ public class SettingsFragment extends Fragment {
         btnLogout.setOnClickListener(v -> logoutUser(v));
     }
 
+    // Initialize views
     private void initViews(View view) {
+        ivProfile = view.findViewById(R.id.ivProfile);
+        tvChangePhoto = view.findViewById(R.id.tvChangePhoto);
         etEmail = view.findViewById(R.id.etEmail);
         etNickname = view.findViewById(R.id.etNickname);
         etPassword = view.findViewById(R.id.etPassword);
@@ -132,6 +188,7 @@ public class SettingsFragment extends Fragment {
         btnLogout = view.findViewById(R.id.btnLogout);
     }
 
+    // Load user data from MongoDB
     private void loadUserData() {
         apiService.getUser(currentUid).enqueue(new Callback<User>() {
             @Override
@@ -155,6 +212,13 @@ public class SettingsFragment extends Fragment {
                         else if (gender.equalsIgnoreCase("Female")) rgGender.check(R.id.rbFemale);
                         else rgGender.check(R.id.rbOther);
                     }
+
+                    // Load Profile Image
+                    if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
+                        Bitmap bitmap = decodeImage(user.getProfileImage());
+                        ivProfile.setImageBitmap(bitmap);
+                        encodedImage = user.getProfileImage(); // Keep existing image in memory
+                    }
                 }
             }
 
@@ -167,6 +231,7 @@ public class SettingsFragment extends Fragment {
         });
     }
 
+    // Save changes to Firebase and MongoDB
     private void saveChanges() {
         String newPassword = etPassword.getText().toString().trim();
 
@@ -200,6 +265,7 @@ public class SettingsFragment extends Fragment {
         }
     }
 
+    // Update MongoDB with new data
     private void updateMongoDB() {
         String nickname = etNickname.getText().toString();
         String phone = etPhone.getText().toString();
@@ -214,6 +280,8 @@ public class SettingsFragment extends Fragment {
 
         // Note: We send existing email and uid, but Python will ignore email updates.
         User updatedUser = new User(currentUid, etEmail.getText().toString(), password, birthDate, nickname, phone, gender);
+
+        updatedUser.setProfileImage(encodedImage);
 
         apiService.updateUser(currentUid, updatedUser).enqueue(new Callback<ResponseBody>() {
             @Override
@@ -237,11 +305,73 @@ public class SettingsFragment extends Fragment {
         });
     }
 
+    // Logout User from Firebase and navigate back to Login Screen
     private void logoutUser(View view) {
         // Sign out from Firebase
         mAuth.signOut();
 
         // Navigate back to Login Screen (and clear history so back button won't work)
         Navigation.findNavController(view).navigate(R.id.action_settingsFragment_to_loginFragment);
+    }
+
+    // Open Gallery to select profile image
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        imagePickerLauncher.launch(intent);
+    }
+
+    // Helper: Convert Bitmap to Base64 String
+    private String encodeImage(Bitmap bitmap) {
+        int previewWidth = 400;
+        int previewHeight = bitmap.getHeight() * previewWidth / bitmap.getWidth();
+
+        // Resize image to avoid huge payloads (MongoDB has a limit)
+        Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap, previewWidth, previewHeight, false);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        // Compress to JPEG with 50% quality
+        previewBitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream);
+        byte[] bytes = byteArrayOutputStream.toByteArray();
+        return Base64.encodeToString(bytes, Base64.DEFAULT);
+    }
+
+    // Helper: Decode Base64 String to Bitmap (For loading existing image)
+    private Bitmap decodeImage(String encodedImage) {
+        byte[] bytes = Base64.decode(encodedImage, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+    }
+
+    // Helper: Rotate image based on EXIF data
+    private Bitmap rotateImageIfRequired(Context context, Bitmap img, Uri selectedImage) throws IOException {
+        InputStream input = context.getContentResolver().openInputStream(selectedImage);
+        ExifInterface ei;
+
+
+        if (android.os.Build.VERSION.SDK_INT > 23)
+            ei = new ExifInterface(input);
+        else
+            ei = new ExifInterface(selectedImage.getPath());
+
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return rotateImage(img, 90);
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return rotateImage(img, 180);
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return rotateImage(img, 270);
+            default:
+                return img;
+        }
+    }
+
+    // Helper: Rotate Bitmap by a given degree
+    private static Bitmap rotateImage(Bitmap img, int degree) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+        img.recycle();
+        return rotatedImg;
     }
 }
