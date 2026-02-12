@@ -22,12 +22,20 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
     private List<Game> displayedList; // List of games to be displayed
     private Context context;
 
+    private OnFavoriteClickListener favoriteListener;
+    private List<Integer> userFavoritesIds = new ArrayList<>();
+
+    private OnItemClickListener itemClickListener;
+
+    // Interface for favorite click listener
     public interface OnFavoriteClickListener {
         void onFavoriteClick(int gameId, boolean isFavorite);
     }
 
-    private OnFavoriteClickListener favoriteListener;
-    private List<Integer> userFavoritesIds = new ArrayList<>();
+    // Interface for item click listener
+    public interface OnItemClickListener {
+        void onItemClick(Game game);
+    }
 
     public GameAdapter(Context context, List<Game> gameList, OnFavoriteClickListener listener) {
         this.context = context;
@@ -94,9 +102,17 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
         boolean isFav = userFavoritesIds.contains(game.getId());
         holder.cbFavorite.setChecked(isFav);
 
+        // Set favorite click listener
         holder.cbFavorite.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (favoriteListener != null) {
                 favoriteListener.onFavoriteClick(game.getId(), isChecked);
+            }
+        });
+
+        // Set item click listener
+        holder.itemView.setOnClickListener(v -> {
+            if (itemClickListener != null) {
+                itemClickListener.onItemClick(game);
             }
         });
     }
@@ -126,5 +142,10 @@ public class GameAdapter extends RecyclerView.Adapter<GameAdapter.GameViewHolder
     public void setFavorites(List<Integer> favorites) {
         this.userFavoritesIds = favorites;
         notifyDataSetChanged();
+    }
+
+    // Set item click listener
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.itemClickListener = listener;
     }
 }

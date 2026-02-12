@@ -139,12 +139,23 @@ public class HomeFragment extends Fragment {
     private void setupRecyclerView() {
         rvGames.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        // Create adapter with empty list for favorites
         adapter = new GameAdapter(getContext(), new ArrayList<>(), new GameAdapter.OnFavoriteClickListener() {
             @Override
             public void onFavoriteClick(int gameId, boolean isFavorite) {
-
-                // This code runs when the user clicks the heart icon
                 handleFavoriteAction(gameId, isFavorite);
+            }
+        });
+
+        // Add listener for item clicks
+        adapter.setOnItemClickListener(new GameAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Game game) {
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("gameData", game); // "gameData" זה המפתח
+
+                Navigation.findNavController(getView())
+                        .navigate(R.id.action_homeFragment_to_gameDetailsFragment, bundle);
             }
         });
 

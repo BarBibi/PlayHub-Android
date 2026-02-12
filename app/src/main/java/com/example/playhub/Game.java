@@ -1,8 +1,9 @@
 package com.example.playhub;
 
 import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
-public class Game {
+public class Game implements Serializable{
     private int id;
     private String title;
     private String thumbnail;

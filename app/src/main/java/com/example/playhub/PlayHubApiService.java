@@ -1,5 +1,7 @@
 package com.example.playhub;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -30,8 +32,17 @@ public interface PlayHubApiService {
     // Remove favorite game
     @HTTP(method = "DELETE", path = "/api/users/{uid}/favorites", hasBody = true)
     Call<ResponseBody> removeFavorite(@Path("uid") String uid, @Body FavoriteRequest request);
+
+    // Get comments for a game
+    @GET("/api/comments/{gameId}")
+    Call<List<Comment>> getComments(@Path("gameId") int gameId);
+
+    // Add comment
+    @POST("/api/comments")
+    Call<ResponseBody> addComment(@Body Comment comment);
 }
 
+// Helper class for Retrofit calls
 class ResponseBody {
     private String message;
 
@@ -40,6 +51,7 @@ class ResponseBody {
     }
 }
 
+// Helper class for favorite request
 class FavoriteRequest {
     private int gameId;
 
