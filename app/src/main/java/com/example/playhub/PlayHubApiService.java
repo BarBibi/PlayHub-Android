@@ -1,5 +1,7 @@
 package com.example.playhub;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 import retrofit2.Call;
@@ -10,6 +12,7 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.DELETE;
+import retrofit2.http.Query;
 
 public interface PlayHubApiService {
 
@@ -40,6 +43,18 @@ public interface PlayHubApiService {
     // Add comment
     @POST("/api/comments")
     Call<ResponseBody> addComment(@Body Comment comment);
+
+    // Search users
+    @GET("/api/users/search")
+    Call<List<User>> searchUsers(@Query("q") String query, @Query("uid") String currentUid);
+
+    // Follow user
+    @POST("/api/users/follow")
+    Call<ResponseBody> followUser(@Body FollowRequest request);
+
+    // Unfollow user
+    @POST("/api/users/unfollow")
+    Call<ResponseBody> unfollowUser(@Body FollowRequest request);
 }
 
 // Helper class for Retrofit calls
@@ -57,5 +72,19 @@ class FavoriteRequest {
 
     public FavoriteRequest(int gameId) {
         this.gameId = gameId;
+    }
+}
+
+// Helper class for follow request
+class FollowRequest {
+    @SerializedName("currentUserId")
+    private String currentUserId;
+
+    @SerializedName("targetUserId")
+    private String targetUserId;
+
+    public FollowRequest(String currentUserId, String targetUserId) {
+        this.currentUserId = currentUserId;
+        this.targetUserId = targetUserId;
     }
 }

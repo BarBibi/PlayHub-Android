@@ -148,7 +148,7 @@ public class GameDetailsFragment extends Fragment {
 
     private void initRetrofit() {
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.0.11:5000/")
+                .baseUrl("http://10.0.0.8:5000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         apiService = retrofit.create(PlayHubApiService.class);

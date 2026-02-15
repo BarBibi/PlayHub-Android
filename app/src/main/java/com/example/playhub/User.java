@@ -1,10 +1,17 @@
 package com.example.playhub;
 
+import com.google.gson.annotations.SerializedName;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    private String uid, email, password, birthDate, nickname, phone, gender, profileImage;
+    @SerializedName("_id")
+    private String uid;
+    private String email, password, birthDate, nickname, phone, gender, profileImage;
     private List<Object> favorites;
+    private List<String> following = new ArrayList<>();
+    private List<String> followers = new ArrayList<>();
 
     public User() {}
 
@@ -56,5 +63,21 @@ public class User {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public List<String> getFollowing() {
+        return following;
+    }
+
+    public void setFollowing(List<String> following) {
+        this.following = following;
+    }
+
+    public List<String> getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(List<String> followers) {
+        this.followers = followers;
     }
 }

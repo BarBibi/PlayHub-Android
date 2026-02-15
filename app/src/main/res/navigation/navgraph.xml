@@ -40,6 +40,9 @@
         <action
             android:id="@+id/action_homeFragment_to_gameDetailsFragment"
             app:destination="@id/gameDetailsFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_searchUsersFragment"
+            app:destination="@id/searchUsersFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
@@ -66,6 +69,14 @@
         android:label="GameDetailsFragment" >
         <action
             android:id="@+id/action_gameDetailsFragment_to_homeFragment"
+            app:destination="@id/homeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchUsersFragment"
+        android:name="com.example.playhub.SearchUsersFragment"
+        android:label="SearchUsersFragment" >
+        <action
+            android:id="@+id/action_searchUsersFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
     </fragment>
 </navigation>

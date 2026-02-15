@@ -105,7 +105,7 @@ public class FavoritesFragment extends Fragment {
         String uid = mAuth.getCurrentUser().getUid();
 
         Retrofit myRetrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.0.11:5000/")
+                .baseUrl("http://10.0.0.8:5000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         apiService = myRetrofit.create(PlayHubApiService.class);

@@ -110,7 +110,7 @@ public class HomeFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
 
         Retrofit myRetrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.0.11:5000/")
+                .baseUrl("http://10.0.0.8:5000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         myApiService = myRetrofit.create(PlayHubApiService.class);
@@ -133,6 +133,11 @@ public class HomeFragment extends Fragment {
         ImageButton btnFavorites = view.findViewById(R.id.btnFavorites);
         btnFavorites.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_homeFragment_to_favoritesFragment);
+        });
+
+        ImageButton btnAddFriend = view.findViewById(R.id.btnAddFriend);
+        btnAddFriend.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.action_homeFragment_to_searchUsersFragment);
         });
     }
 

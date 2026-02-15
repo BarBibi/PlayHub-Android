@@ -160,7 +160,7 @@ public class RegisterFragment extends Fragment {
             User user = new User(uid, email, password, birthDate, nickname, phone, gender);
 
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("http://10.0.0.11:5000/")
+                    .baseUrl("http://10.0.0.8:5000/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
 
