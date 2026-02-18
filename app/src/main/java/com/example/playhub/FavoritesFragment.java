@@ -38,6 +38,7 @@ public class FavoritesFragment extends Fragment {
     private GameAdapter adapter;
     private ProgressBar progressBar;
     private TextView tvEmptyState;
+    private ImageButton btnBack;
 
     private FirebaseAuth mAuth;
     private PlayHubApiService apiService;
@@ -96,8 +97,8 @@ public class FavoritesFragment extends Fragment {
         rvFavorites = view.findViewById(R.id.rvFavorites);
         progressBar = view.findViewById(R.id.progressBar);
         tvEmptyState = view.findViewById(R.id.tvEmptyState);
-        ImageButton btnBack = view.findViewById(R.id.btnBack);
 
+        btnBack = view.findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> Navigation.findNavController(v).navigateUp());
 
         mAuth = FirebaseAuth.getInstance();
@@ -105,7 +106,7 @@ public class FavoritesFragment extends Fragment {
         String uid = mAuth.getCurrentUser().getUid();
 
         Retrofit myRetrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.0.11:5000/")
+                .baseUrl("http://10.0.0.13:5000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         apiService = myRetrofit.create(PlayHubApiService.class);
@@ -188,7 +189,7 @@ public class FavoritesFragment extends Fragment {
 
                     // Update UI
                     adapter.setGames(favoriteGames);
-                    // Mark hearts as red
+                    // Mark as favorites
                     adapter.setFavorites(favIds);
                 }
             }

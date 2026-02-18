@@ -49,6 +49,7 @@
                 <TextView android:id="@+id/tvDetailGenre" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Genre"/>
                 <TextView android:id="@+id/tvDetailPlatform" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Platform"/>
                 <TextView android:id="@+id/tvDetailPublisher" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Publisher"/>
+                <TextView android:id="@+id/tvDetailDeveloper" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Developer"/>
                 <TextView android:id="@+id/tvDetailDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Date"/>
 
                 <androidx.recyclerview.widget.RecyclerView

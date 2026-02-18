@@ -36,11 +36,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * create an instance of this fragment.
  */
 public class HomeFragment extends Fragment {
+
     private RecyclerView rvGames;
     private ProgressBar progressBar;
     private GameAdapter adapter;
     private SearchView searchView;
     private Spinner spinnerGenre, spinnerPlatform;
+    private ImageButton btnSettings, btnFavorites;
 
     private String currentQuery = "";
     private String currentGenre = "All Genres";
@@ -110,9 +112,10 @@ public class HomeFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
 
         Retrofit myRetrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.0.11:5000/")
+                .baseUrl("http://10.0.0.13:5000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
         myApiService = myRetrofit.create(PlayHubApiService.class);
 
         setupRecyclerView();
@@ -125,12 +128,12 @@ public class HomeFragment extends Fragment {
 
         syncFavorites();
 
-        ImageButton btnSettings = view.findViewById(R.id.btnSettings);
+        btnSettings = view.findViewById(R.id.btnSettings);
         btnSettings.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_homeFragment_to_settingsFragment);
         });
 
-        ImageButton btnFavorites = view.findViewById(R.id.btnFavorites);
+        btnFavorites = view.findViewById(R.id.btnFavorites);
         btnFavorites.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_homeFragment_to_favoritesFragment);
         });
@@ -147,15 +150,13 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        // Add listener for item clicks
+        // Set listener for game item click
         adapter.setOnItemClickListener(new GameAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Game game) {
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("gameData", game); // "gameData" זה המפתח
-
-                Navigation.findNavController(getView())
-                        .navigate(R.id.action_homeFragment_to_gameDetailsFragment, bundle);
+                bundle.putSerializable("gameData", game);
+                Navigation.findNavController(getView()).navigate(R.id.action_homeFragment_to_gameDetailsFragment, bundle);
             }
         });
 
@@ -319,7 +320,7 @@ public class HomeFragment extends Fragment {
 
                     if (rawFavorites != null) {
                         for (Object item : rawFavorites) {
-                            // Safe casting: Gson might treat numbers as Double (e.g., 540.0)
+                            // Gson might treat numbers as Double (e.g., 540.0)
                             if (item instanceof Double) {
                                 favoriteIds.add(((Double) item).intValue());
                             } else if (item instanceof Integer) {
