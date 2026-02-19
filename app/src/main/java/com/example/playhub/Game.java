@@ -19,7 +19,6 @@ public class Game implements Serializable{
     @SerializedName("release_date")
     private String releaseDate;
 
-    // Getters
     public int getId() { return id; }
     public String getTitle() { return title; }
     public String getThumbnail() { return thumbnail; }

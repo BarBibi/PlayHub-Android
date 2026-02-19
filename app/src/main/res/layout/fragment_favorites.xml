@@ -22,12 +22,13 @@
             android:scaleType="centerInside"/>
 
         <TextView
+            android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:text="My Favorites"
             android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginStart="16dp"/>
+            android:textStyle="bold" />
     </LinearLayout>
 
     <TextView

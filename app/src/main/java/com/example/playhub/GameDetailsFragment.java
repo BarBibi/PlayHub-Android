@@ -40,10 +40,10 @@ import android.text.Html;
 public class GameDetailsFragment extends Fragment {
 
     private ImageView ivBanner;
-    private TextView tvTitle, tvDesc, tvGenre, tvPlatform, tvPublisher, tvReleaseDate;
+    private TextView tvTitle, tvDesc, tvGenre, tvPlatform, tvPublisher, tvDeveloper, tvReleaseDate;
     private RecyclerView rvComments;
     private EditText etCommentInput;
-    private ImageButton btnSend;
+    private ImageButton btnSend, btnBack;
 
     private Game game;
     private CommentsAdapter adapter;
@@ -107,8 +107,27 @@ public class GameDetailsFragment extends Fragment {
             game = (Game) getArguments().getSerializable("gameData");
         }
 
-        initViews(view);
-        initRetrofit();
+        ivBanner = view.findViewById(R.id.ivGameBanner);
+        tvTitle = view.findViewById(R.id.tvDetailTitle);
+        tvDesc = view.findViewById(R.id.tvDetailDesc);
+        tvGenre = view.findViewById(R.id.tvDetailGenre);
+        tvPlatform = view.findViewById(R.id.tvDetailPlatform);
+        tvPublisher = view.findViewById(R.id.tvDetailPublisher);
+        tvDeveloper = view.findViewById(R.id.tvDetailDeveloper);
+        tvReleaseDate = view.findViewById(R.id.tvDetailDate);
+
+        rvComments = view.findViewById(R.id.rvComments);
+        etCommentInput = view.findViewById(R.id.etCommentInput);
+        rvComments.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new CommentsAdapter(new ArrayList<>());
+        rvComments.setAdapter(adapter);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://10.0.0.13:5000/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        apiService = retrofit.create(PlayHubApiService.class);
+
         mAuth = FirebaseAuth.getInstance();
 
         // View game details
@@ -120,38 +139,13 @@ public class GameDetailsFragment extends Fragment {
         // Load current user's nickname and email
         loadCurrentUserDetails();
 
+        btnSend = view.findViewById(R.id.btnSendComment);
         btnSend.setOnClickListener(v -> postComment());
 
-        ImageButton btnBack = view.findViewById(R.id.btnBack);
+        btnBack = view.findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> {
             Navigation.findNavController(v).navigateUp();
         });
-    }
-
-    private void initViews(View view) {
-        ivBanner = view.findViewById(R.id.ivGameBanner);
-        tvTitle = view.findViewById(R.id.tvDetailTitle);
-        tvDesc = view.findViewById(R.id.tvDetailDesc);
-        tvGenre = view.findViewById(R.id.tvDetailGenre);
-        tvPlatform = view.findViewById(R.id.tvDetailPlatform);
-        tvPublisher = view.findViewById(R.id.tvDetailPublisher);
-        tvReleaseDate = view.findViewById(R.id.tvDetailDate);
-
-        rvComments = view.findViewById(R.id.rvComments);
-        etCommentInput = view.findViewById(R.id.etCommentInput);
-        btnSend = view.findViewById(R.id.btnSendComment);
-
-        rvComments.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new CommentsAdapter(new ArrayList<>());
-        rvComments.setAdapter(adapter);
-    }
-
-    private void initRetrofit() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.0.8:5000/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        apiService = retrofit.create(PlayHubApiService.class);
     }
 
     private void populateGameDetails() {
@@ -160,6 +154,7 @@ public class GameDetailsFragment extends Fragment {
         tvGenre.setText(Html.fromHtml("<b>Genre:</b> " + game.getGenre()));
         tvPlatform.setText(Html.fromHtml("<b>Platform:</b> " + game.getPlatform()));
         tvPublisher.setText(Html.fromHtml("<b>Publisher:</b> " + game.getPublisher()));
+        tvDeveloper.setText(Html.fromHtml("<b>Developer:</b> " + game.getDeveloper()));
         tvReleaseDate.setText(Html.fromHtml("<b>Release Date:</b> " + game.getReleaseDate()));
         Glide.with(this).load(game.getThumbnail()).into(ivBanner);
     }
@@ -178,7 +173,9 @@ public class GameDetailsFragment extends Fragment {
                 }
             }
             @Override
-            public void onFailure(Call<User> call, Throwable t) {}
+            public void onFailure(Call<User> call, Throwable t) {
+                Toast.makeText(getContext(), "Error loading user details", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 

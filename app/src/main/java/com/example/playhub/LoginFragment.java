@@ -24,9 +24,12 @@ import com.google.firebase.auth.FirebaseAuth;
  * create an instance of this fragment.
  */
 public class LoginFragment extends Fragment {
+
     private FirebaseAuth mAuth;
 
     private EditText emailInput, passwordInput;
+    private Button btnLogin;
+    private TextView tvRegister;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -77,9 +80,8 @@ public class LoginFragment extends Fragment {
 
         emailInput = view.findViewById(R.id.emailInput);
         passwordInput = view.findViewById(R.id.passwordInput);
-        Button btnLogin = view.findViewById(R.id.btnLogin);
-        TextView tvRegister = view.findViewById(R.id.tvRegister);
 
+        btnLogin = view.findViewById(R.id.btnLogin);
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -87,6 +89,7 @@ public class LoginFragment extends Fragment {
             }
         });
 
+        tvRegister = view.findViewById(R.id.tvRegister);
         tvRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,6 +101,7 @@ public class LoginFragment extends Fragment {
         return view;
     }
 
+    // Login user with email & password
     private void loginUser(View view) {
         String email = emailInput.getText().toString();
         String password = passwordInput.getText().toString();

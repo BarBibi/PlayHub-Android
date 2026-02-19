@@ -54,14 +54,18 @@ public class SettingsFragment extends Fragment {
 
     private EditText etEmail, etNickname, etPassword, etPhone, etBirthDate;
     private RadioGroup rgGender;
+    private ImageView ivProfile;
+    private TextView tvChangePhoto;
+
     private Button btnSave, btnLogout;
+    private ImageButton btnBack;
 
     private FirebaseAuth mAuth;
     private PlayHubApiService apiService;
     private String currentUid;
 
-    private ImageView ivProfile;
-    private TextView tvChangePhoto;
+    // Variable to store the raw password entered by the user
+    private String currentPasswordRaw = "";
 
     // Variable to store the encoded image to send to server
     private String encodedImage = "";
@@ -148,44 +152,39 @@ public class SettingsFragment extends Fragment {
             Navigation.findNavController(view).navigate(R.id.action_settingsFragment_to_loginFragment);
             return;
         }
-
         currentUid = mAuth.getCurrentUser().getUid();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.0.8:5000/")
+                .baseUrl("http://10.0.0.13:5000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-
         apiService = retrofit.create(PlayHubApiService.class);
 
-        initViews(view);
-
-        tvChangePhoto.setOnClickListener(v -> openGallery());
-        ivProfile.setOnClickListener(v -> openGallery());
-
-        loadUserData();
-
-        ImageButton btnBack = view.findViewById(R.id.btnBack);
-        btnBack.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigateUp();
-        });
-
-        btnSave.setOnClickListener(v -> saveChanges());
-        btnLogout.setOnClickListener(v -> logoutUser(v));
-    }
-
-    // Initialize views
-    private void initViews(View view) {
-        ivProfile = view.findViewById(R.id.ivProfile);
-        tvChangePhoto = view.findViewById(R.id.tvChangePhoto);
         etEmail = view.findViewById(R.id.etEmail);
         etNickname = view.findViewById(R.id.etNickname);
         etPassword = view.findViewById(R.id.etPassword);
         etPhone = view.findViewById(R.id.etPhone);
         etBirthDate = view.findViewById(R.id.etBirthDate);
         rgGender = view.findViewById(R.id.rgGender);
+
+        ivProfile = view.findViewById(R.id.ivProfile);
+        ivProfile.setOnClickListener(v -> openGallery());
+
+        tvChangePhoto = view.findViewById(R.id.tvChangePhoto);
+        tvChangePhoto.setOnClickListener(v -> openGallery());
+
+        loadUserData();
+
+        btnBack = view.findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigateUp();
+        });
+
         btnSave = view.findViewById(R.id.btnSave);
+        btnSave.setOnClickListener(v -> saveChanges());
+
         btnLogout = view.findViewById(R.id.btnLogout);
+        btnLogout.setOnClickListener(v -> logoutUser(v));
     }
 
     // Load user data from MongoDB
@@ -201,7 +200,7 @@ public class SettingsFragment extends Fragment {
                     // Populate fields
                     etEmail.setText(user.getEmail());
                     etNickname.setText(user.getNickname());
-                    etPassword.setText(user.getPassword());
+                    currentPasswordRaw = user.getPassword();
                     etPhone.setText(user.getPhone());
                     etBirthDate.setText(user.getBirthDate());
 
@@ -247,7 +246,6 @@ public class SettingsFragment extends Fragment {
                                 updateMongoDB();
                                 Toast.makeText(getContext(), "Password updated in Firebase", Toast.LENGTH_SHORT).show();
                             } else {
-                                // Error handling
                                 Exception e = task.getException();
 
                                 if (e instanceof FirebaseAuthRecentLoginRequiredException) {
@@ -270,7 +268,15 @@ public class SettingsFragment extends Fragment {
         String nickname = etNickname.getText().toString();
         String phone = etPhone.getText().toString();
         String birthDate = etBirthDate.getText().toString();
-        String password = etPassword.getText().toString();
+
+        String inputPassword = etPassword.getText().toString().trim();
+        String finalPassword;
+
+        if (inputPassword.isEmpty()) {
+            finalPassword = currentPasswordRaw;
+        } else {
+            finalPassword = inputPassword;
+        }
 
         String gender = null;
         int selectedId = rgGender.getCheckedRadioButtonId();
@@ -278,8 +284,8 @@ public class SettingsFragment extends Fragment {
         else if (selectedId == R.id.rbFemale) gender = "Female";
         else if (selectedId == R.id.rbOther) gender = "Other";
 
-        // Note: We send existing email and uid, but Python will ignore email updates.
-        User updatedUser = new User(currentUid, etEmail.getText().toString(), password, birthDate, nickname, phone, gender);
+        // Create updated User object with new data (ignoring uid and email on the server side)
+        User updatedUser = new User(currentUid, etEmail.getText().toString(), finalPassword, birthDate, nickname, phone, gender);
 
         updatedUser.setProfileImage(encodedImage);
 
@@ -345,7 +351,6 @@ public class SettingsFragment extends Fragment {
     private Bitmap rotateImageIfRequired(Context context, Bitmap img, Uri selectedImage) throws IOException {
         InputStream input = context.getContentResolver().openInputStream(selectedImage);
         ExifInterface ei;
-
 
         if (android.os.Build.VERSION.SDK_INT > 23)
             ei = new ExifInterface(input);

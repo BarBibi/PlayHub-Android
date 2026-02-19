@@ -1,13 +1,11 @@
 package com.example.playhub;
 
-import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,8 +16,6 @@ import androidx.navigation.Navigation;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
-
-import java.util.Calendar;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -38,6 +34,8 @@ public class RegisterFragment extends Fragment {
 
     private EditText emailField, passwordField, nicknameField, birthDateField, phoneField;
     private RadioGroup genderGroup;
+    private Button btnSignUp;
+    private TextView tvBackToLogin;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -84,7 +82,6 @@ public class RegisterFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
-        // Initializing variables
         mAuth = FirebaseAuth.getInstance();
         emailField = view.findViewById(R.id.emailField);
         passwordField = view.findViewById(R.id.passwordField);
@@ -93,10 +90,10 @@ public class RegisterFragment extends Fragment {
         phoneField = view.findViewById(R.id.phoneField);
         genderGroup = view.findViewById(R.id.genderField);
 
-        Button btnSignUp = view.findViewById(R.id.btnSignUp);
+        btnSignUp = view.findViewById(R.id.btnSignUp);
         btnSignUp.setOnClickListener(v -> registerUser(v));
 
-        TextView tvBackToLogin = view.findViewById(R.id.tvBackToLogin);
+        tvBackToLogin = view.findViewById(R.id.tvBackToLogin);
         tvBackToLogin.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.action_registerFragment_to_loginFragment));
 
@@ -114,6 +111,7 @@ public class RegisterFragment extends Fragment {
             return;
         }
 
+        // Register user in Firebase Auth
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -138,7 +136,6 @@ public class RegisterFragment extends Fragment {
 
     // Write user data to MongoDB
     private void writeToDB() {
-        // Collecting the data (global fields)
         String email = emailField.getText().toString();
         String password = passwordField.getText().toString();
         String birthDate = birthDateField.getText().toString();
@@ -160,7 +157,7 @@ public class RegisterFragment extends Fragment {
             User user = new User(uid, email, password, birthDate, nickname, phone, gender);
 
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("http://10.0.0.8:5000/")
+                    .baseUrl("http://10.0.0.13:5000/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
 
