@@ -137,6 +137,11 @@ public class HomeFragment extends Fragment {
         btnFavorites.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_homeFragment_to_favoritesFragment);
         });
+
+        ImageButton btnAddFriend = view.findViewById(R.id.btnAddFriend);
+        btnAddFriend.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.action_homeFragment_to_searchUsersFragment);
+        });
     }
 
     private void setupRecyclerView() {

@@ -22,6 +22,17 @@
             android:iconifiedByDefault="false" />
 
         <ImageButton
+            android:id="@+id/btnAddFriend"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_person_add"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Add Friend"
+            android:layout_marginStart="4dp"
+            android:scaleType="centerInside"
+            app:tint="#2196F3"/>
+
+        <ImageButton
             android:id="@+id/btnFavorites"
             android:layout_width="48dp"
             android:layout_height="48dp"
