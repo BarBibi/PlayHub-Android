@@ -1,4 +1,4 @@
-package com.example.playhub;
+package com.example.playhub.models;
 
 public class Comment {
     private String id;      // MongoDB ID

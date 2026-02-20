@@ -1,4 +1,6 @@
-package com.example.playhub;
+package com.example.playhub.api;
+
+import com.example.playhub.models.Game;
 
 import java.util.List;
 import retrofit2.Call;

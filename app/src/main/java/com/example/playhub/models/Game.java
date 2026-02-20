@@ -1,4 +1,4 @@
-package com.example.playhub;
+package com.example.playhub.models;
 
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;

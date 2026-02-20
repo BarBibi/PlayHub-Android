@@ -1,0 +1,22 @@
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables and secrets
+.env
+.env.local
+.flaskenv
+
+# Code editor settings
+.idea/
+.vscode/
+
+# Runtime and error logs
+*.log

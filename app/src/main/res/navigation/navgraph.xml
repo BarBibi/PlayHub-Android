@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.playhub.LoginFragment"
+        android:name="com.example.playhub.fragments.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" >
         <action
@@ -19,7 +19,7 @@
     </fragment>
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.example.playhub.RegisterFragment"
+        android:name="com.example.playhub.fragments.RegisterFragment"
         android:label="fragment_register"
         tools:layout="@layout/fragment_register" >
         <action
@@ -28,7 +28,7 @@
     </fragment>
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.playhub.HomeFragment"
+        android:name="com.example.playhub.fragments.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" >
         <action
@@ -46,7 +46,7 @@
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.playhub.SettingsFragment"
+        android:name="com.example.playhub.fragments.SettingsFragment"
         android:label="SettingsFragment" >
         <action
             android:id="@+id/action_settingsFragment_to_homeFragment"
@@ -57,7 +57,7 @@
     </fragment>
     <fragment
         android:id="@+id/favoritesFragment"
-        android:name="com.example.playhub.FavoritesFragment"
+        android:name="com.example.playhub.fragments.FavoritesFragment"
         android:label="FavoritesFragment" >
         <action
             android:id="@+id/action_favoritesFragment_to_homeFragment"
@@ -65,7 +65,7 @@
     </fragment>
     <fragment
         android:id="@+id/gameDetailsFragment"
-        android:name="com.example.playhub.GameDetailsFragment"
+        android:name="com.example.playhub.fragments.GameDetailsFragment"
         android:label="GameDetailsFragment" >
         <action
             android:id="@+id/action_gameDetailsFragment_to_homeFragment"
@@ -73,7 +73,7 @@
     </fragment>
     <fragment
         android:id="@+id/searchUsersFragment"
-        android:name="com.example.playhub.SearchUsersFragment"
+        android:name="com.example.playhub.fragments.SearchUsersFragment"
         android:label="SearchUsersFragment" >
         <action
             android:id="@+id/action_searchUsersFragment_to_homeFragment"

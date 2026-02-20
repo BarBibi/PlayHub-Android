@@ -1,4 +1,4 @@
-package com.example.playhub;
+package com.example.playhub.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,6 +15,12 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.playhub.models.FollowRequest;
+import com.example.playhub.api.PlayHubApiService;
+import com.example.playhub.R;
+import com.example.playhub.models.ResponseBody;
+import com.example.playhub.adapters.UsersAdapter;
+import com.example.playhub.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -34,7 +40,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class SearchUsersFragment extends Fragment {
 
     private EditText etSearch;
-    private ImageButton btnSearch;
+    private ImageButton btnSearch, btnBack;
     private RecyclerView rvResults;
     private UsersAdapter adapter;
 
@@ -99,7 +105,7 @@ public class SearchUsersFragment extends Fragment {
         rvResults = view.findViewById(R.id.rvUserResults);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.0.8:5000/")
+                .baseUrl("http://10.0.0.13:5000/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         apiService = retrofit.create(PlayHubApiService.class);
@@ -114,7 +120,7 @@ public class SearchUsersFragment extends Fragment {
         // Set Search Listener
         btnSearch.setOnClickListener(v -> performSearch());
 
-        ImageButton btnBack = view.findViewById(R.id.btnBack);
+        btnBack = view.findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> {
             Navigation.findNavController(v).navigateUp();
         });

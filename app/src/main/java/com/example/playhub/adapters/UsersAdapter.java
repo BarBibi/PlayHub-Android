@@ -1,4 +1,4 @@
-package com.example.playhub;
+package com.example.playhub.adapters;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,6 +12,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.playhub.R;
+import com.example.playhub.models.User;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.example.playhub;
+package com.example.playhub.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,6 +16,12 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.playhub.adapters.GameAdapter;
+import com.example.playhub.api.GameApiService;
+import com.example.playhub.api.PlayHubApiService;
+import com.example.playhub.R;
+import com.example.playhub.models.Game;
+import com.example.playhub.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.example.playhub;
+package com.example.playhub.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -19,6 +19,10 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.playhub.api.PlayHubApiService;
+import com.example.playhub.R;
+import com.example.playhub.models.ResponseBody;
+import com.example.playhub.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
